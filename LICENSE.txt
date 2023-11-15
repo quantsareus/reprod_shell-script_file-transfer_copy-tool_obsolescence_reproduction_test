@@ -1,0 +1,12 @@
+
+Licence, Warranty and Liability
+
+
+Licence: GPL-V3
+
+Which more or less means:
+Unlimited free to use and unlimited free to redistribute. Free to recycle the code, as far the new code is granted with a GPL-V3 licence (or higher), again.
+
+
+The tool is granted without any warranty and also without any liability for damages, the tool might - properly or improperly applied - cause. In other words: The usage of the tool is fully at own risk in any direction.
+
