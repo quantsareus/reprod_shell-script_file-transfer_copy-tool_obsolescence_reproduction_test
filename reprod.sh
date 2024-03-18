@@ -3,7 +3,7 @@
 
 # reprod.sh 
 # By quantsareus.net
-version="0.42e"
+version="0.50.01"
 
 
 print_usage() {
@@ -21,31 +21,32 @@ echo "  -l , --license          Print the license and OSS-contributions informat
 echo "  -v , --version          Print version."
 echo "  -r , --readme           Print the readme information. __The 'Safe Use' section is a MUST-READ before starting!__"
 echo "----------------------------------------------------------------------------------------------------------------------------"
-echo "  -m=r, --mode=reprod     Default reproduction mode. Transfers the files with a file authoring mimic. The target file "  
-echo "                          attributes are generated new, as if the file was created/ edited by an app. Except for access " 
-echo "                          mode and and ownership."
+echo "  -m=r, --mode=reprod     Default reproduction mode. Relatively safe and relatively slow. Transfers the files with some kind "  
+echo "                          of an authoring mimic. The target file attributes are generated new, as if the file was created/ " 
+echo "                          edited by an app. Except for access mode and and ownership."
 echo "  -m=cp, --mode=copy      cp mode. All file attributes of the target file are the ones of the source file. Fast." 
-echo "  -m=mv, --mode=move      mv mode. Within the same file system the source files are just relinked to the new target-"  
-echo "                          directories. (No effective file transfer, very fast.) For target directories on another file " 
-echo "                          system it applies the command cp and deletes source file. All file attributes of the target " 
-echo "                          file are the ones of the source file."
-echo "  -m=n, --mode=native     Native mode. Transfers the files in the historically native hardware blocksize. Over the " 
-echo "                          thumb one half of the target file attributes are created new, the other half are the ones of "
-echo "                          the source file." 
-echo "  -m=dd4k                 EXPERIMENTAL transfer in 4k Byte blocks. (Better do not use, yet)"
-echo "  -m=dd64                 EXPERIMENTAL transfer in 64 Byte blocks. (Better do not use, yet)" 
+echo "  -m=mv, --mode=move      mv mode. A workoaround for the missing mv -r option, in order to move the FILES of a folder-"  
+echo "                          structure recursively. No effective file transfer, thus maximum fast."  
+echo "                          CAVE: The move functionality is only available on the same partition (and the same disk)!" 
+echo "                          Otherwise the called system function mv automatically performs 'cp and rm' of the source file!!!"
+echo ""
+echo "  -m=b32,  --mode=b32     Fast reproduction with HARDWARE ACCELERATION in blocks of 32 bit. FOR CLI USE OF DATA, ONLY!" 
+echo "  -m=b4k,  --mode=b4k     Very fast reproduction with HARDWARE ACCELERATION in blocks of 4096 bit. FOR CLI USE OF DATA, ONLY!"
+echo ""
+echo "  -m=bv X, --mode=bv X    Variable size reproduction by UNKNOWN TECHNIQUE. E.g. to simulate aged folders. VERY EXPERIMENTAL." 
 echo "----------------------------------------------------------------------------------------------------------------------------"
 echo "  -f , --force            Force. Overwrites existing file objects. Except for directories, which cannot get overwritten."
 echo "----------------------------------------------------------------------------------------------------------------------------"
-echo "  -g , --g-author         Graphic authoring mode. Mimicks a graphic authoring of png, webp, jpg, jpeg, gif, xpm and "
+echo "  -g , --gmod             Default graphic modification. Mimicks a graphic authoring of png, webp, jpg, jpeg, gif, xpm and "
 echo "                          bmp images."
+echo "  -gv X                   Graphic modification as above with variable image depth. EXPERIMENTAL."
 echo "----------------------------------------------------------------------------------------------------------------------------"
 echo "  -t=m                    Manual transaction list generation by the user. The manual transaction list has to be provided"
 echo "  --talist=manual         by variation of"
 echo "                          'find -P * > /tmp/ta.man' "
 echo "                          __executed in the source folder__."
 echo "                          The absolutely free selection of file objects will be completed for parent directories automa-" 
-echo "                          tically by the embedded tool parentdircomplete.py. (You might get love this feature.)"
+echo "                          tically by the embedded tool parentdircomplete.py. Unique 'selling' point."
 echo "----------------------------------------------------------------------------------------------------------------------------"
 echo ""
 echo "Remark:"
@@ -57,14 +58,22 @@ echo "Requirements: Linux + bash/zsh or Unix + bash/zsh. Maybe also Windows + WS
 
 print_readme() {
 echo ""
+echo "Updates in Version 0.50:"
+echo "" 
+echo "- Improved transfer speed by tripling the transfer block size from 8 to 24. (Higher than bs=24 does not seem to be possible on a shell programming basis, because the 32 bit hardware acceleration will drop in at bs >= 32.)"
+echo "- Disabled filesize display for performance reasons. (Mark # Disabled filesize display)"
+echo "- Removed depreciated ('native') b512 transfer mode. No good results with this one."
+echo "- Flexible transfer and gmod modes for your own experiments."
+echo ""
+echo ""
 echo "Functionality and Features"
 echo "" 
 echo "- On a basic level reprod.sh provides a flexible and reliable file transfer functionality, that allows to transfers files, directories and links of a __directory structure__ of unlimited depth in one go. It is safe for nasty file and folder names containing blanks or quote characters. (However not safe for absolute nasty file and folder names containing new line or line comment characters.)"
 echo ""
-echo "- The work horse for the basic copy-tool functionality is the transfer mode '-m=cp' respectively '--mode=copy'."
+echo "- The work horse for the simple copy tool functionality is the transfer mode '-m=cp' respectively '--mode=copy'."
 echo ""
 echo "- The default option '--talist=automatic' will create a full reproduction of all file objects of the <source-directory> in the <target-directory>."
-echo "  Alternatively, the option 't=m' respectively '--talist=manual' can be used to transfer an absolutely free selected partial list of file objects (files, directories and links). The embedded tool parentdircomplete.py will complete the user generated transaction list /tmp/ta.lst for all their recursive parent directories, automatically. (Which currently is a unique 'selling point' functionality, that the standard linux transfer tools cannot provide, even if run in a pipeline; neither Windows or macOS-X transfer tools can do that.) The automatic recursive parent directory completion is limited to maximum depth of 64."
+echo "  alternatively, the option 't=m' respectively '--talist=manual' can be used to transfer an absolutely free selected partial list of file objects (files, directories and links). The embedded tool parentdircomplete.py will complete the user generated transaction list /tmp/ta.lst for all their recursive parent directories, automatically. This is currently a unique 'selling' point functionality, that the standard linux transfer tools cannot provide, even if run in a pipeline; neither Windows or macOS-X transfer tools can do that. The automatic recursive parent directory completion is limited to maximum depth of 64."
 echo ""
 echo "- By default in case already existing file objects in the target directory are not overwritten and get reported as fail. To overwrite, you have to specify '-f' respectively '--force'. Directories however, cannot be overwritten. Thus, trying to transfer already existing directories will, '--force' specified or not, always fail."
 echo ""
@@ -74,9 +83,9 @@ echo "- On a more advanced level the transferred data gets used as test data for
 echo "" 
 echo "- The default transfer mode '-m=r' respectively '-mode=reprod' generates realistic test data applying a file authoring mimic. Here the file attributes of the target files are generated new, as if the file was created/ edited by an app. Except for the access mode and the ownership file attributes, which are always preserved in any transfer mode."
 echo "" 
-echo "- The additional option '-g' respectively '--g-author' mimicks a graphic authoring of png, jpg, jpeg, gif, xpm and bmp images, in order to simulate a authoring of graphics."
+echo "- The additional option '-g'/'--gmod' respectively '-gv X' modifies graphics of type (by suffix) png, jpg, jpeg, gif, xpm and bmp images, in order to simulate an authoring of graphics."
 echo "" 
-echo "- The experimental transfer modes are currently not recommended. Better do not use, yet."
+echo "- The experimental transfer modes are truly granted for EXPERIMENTAL USE, only! (Do not blame the author for getting stuck in wonderland.)"
 echo ""
 echo "- Last but not least reprod.sh provides a rough overall progress indicator during the transfer process and grants a detailed success reporting afterwards. Every eventual fail gets classified by the linux file type (file, directory or link). In case of fails two logs with failed files are generated ('/tmp/fail.lst' and '/tmp/g_fail.lst'). These ones can also get used to perform further batch jobs on the fails. E.g.  'sudo cat /tmp/g_fail.lst | sudo xargs shred -zn 0' (executed in the <target-directory>)."
 echo ""
@@ -87,50 +96,64 @@ echo "The basic modes require nothing more than simply any Linux + bash or Unix 
 echo ""
 echo "The option --talist=manual additionally requires python numpy."
 echo ""
-echo "The option --g-author additionally requires the package gm, the package imagemagick or another image manipulation package. Usually one of those - or a third image manipulation package - is already installed in most Linux distributions out-of-box. The author does not recommend imagemagick. Thus, for use on own risk the outcommented imagemagick part in the script needs to be activated manually. Other image manipulation packages will require a self integration into the reprod.sh script."
+echo "The -g. options additionally requires the package gm, the package imagemagick or another image manipulation package. Usually one of those - or a third image manipulation package - is already installed in most Linux distributions out-of-box. The author does not recommend imagemagick. Thus, for use on own risk the outcommented imagemagick part in the script needs to be activated manually. Other image manipulation packages will require a self integration into the reprod.sh script."
 echo ""
 echo ""
 echo "Install"
 echo ""
-echo "# Simple 'Install'"
-echo "git clone https://github.com/quantsareus/reprod<...>.git  <mynewfolder>"
-echo "OR"
-echo "mkdir -m 777 <mynewfolder>"
-echo "Download reprod.sh __with a download manager__ and save to <mynewfolder>"
-echo "cd <mynewfolder>"
+echo "# Simple 'install' for use as copy tool"
+echo "mkdir -m 777 <downloaddir>"
+echo "Download reprod.sh (e.g. by browser) and save it to <downloaddir>"
+echo "cd <downloaddir>"
 echo "sudo chmod 755 reprod.sh"
-echo "Precaution: Do not save other files in <mynewfolder> and do not copy it with a GUI file manager. (Move and rename is ok.)"
 echo ""
 echo "# Calling reprod.sh like this"
-echo "sudo </path/to/mynewfolder>/reprod.sh [OPTIONS] <source-directoryr> <target-directory>"
+echo "sudo </path/to/downloaddir>/reprod.sh [OPTIONS] <source-directoryr> <target-directory>"
 echo ""
 echo ""
-echo "# Tricky install to /bin for gurus"
-echo "Some complicated trusted operating system pre-requisits, which are out of the scope of this tiny tool. The author does not know them fully, either. All he can definitely tell from his test series is, that an Ubuntu family linux based on version 18.04 to version 23.10 is (out-of-box) not suitable."
+echo "# Advanced install for reproduction usage"
+echo "Some complicated trusted operating system pre-requisits, which are out of the scope of this tiny tool. The author does not know them fully, either. All he can definitely tell from his test series is, that an Ubuntu family linux based starting version 18.04 is not suitable (out-of-box)."
 echo "Perform the simple install procedure from above."
 echo "Then:"
-echo "cd <mynewfolder>"
-echo "mkdir -m 777 cpdir"
-echo "dd if=reprod.sh of=cpdir/reprod.sh bs=8"
-echo "sudo chmod 755 cpdir/reprod.sh"
-echo "sudo cp cpdir/reprod.sh /bin"
-echo "sudo rm -r cpdir"
+echo "cd <downloaddir>"
+echo "mkdir -m 777 ../anotherdir"
+echo "dd if=reprod.sh of=../anotherdir/reprod.sh bs=24"
+echo "sudo chmod 755 ../anotherdir/reprod.sh"
 echo ""
-echo "# This should enable you to call reprod.sh from anywhere, now, like this:"
+echo "# Calling reprod.sh like this"
+echo "sudo </path/to/anotherdir>/reprod.sh [OPTIONS] <source-directoryr> <target-directory>"
+echo ""
+echo ""
+echo "# More comfortable but also more risky install to /bin"
+echo "sudo cp anotherdir/reprod.sh /bin"
+echo "sudo rm -r anotherdir"
+echo ""
+echo "# Calling reprod.sh like this"
 echo "sudo reprod.sh [OPTIONS] <source-directoryr> <target-directory>"
 echo ""
-echo "# The precaution and the tricky install are only required, if you want to use reprod.sh for reproduction tests. For the basic file transfer/ copy-tool functionality you do not need to care about them and you can copy directly to /bin, if you like to."
 echo ""
 echo ""
-echo "Safe Use (only for reproduction test usage):" 
+echo "Safe Use (regarding reproduction test usage mainly):" 
 echo ""
 echo "1."
 echo "Follow the installation instructions 100% exactly."
 echo ""
 echo "2."
+echo "Do not save other files in the reprod.sh folder and do __not__ copy reprod.sh with a GUI file manager. (Move and rename is ok.)"
+echo ""
+echo "3."
+echo "Once an error or an unusual behavior has occurred, stop the program at once and reboot your machine, before trying a new run! Do not let cracked jobs keep processing. And do not open files from a faulted job in a GUI. The best practice to get rid of maybe nasty generated data is the following deletion pipeline. (Take care where you do execute this!)"
+echo "sudo find -P * -type f -print0 | sudo xargs -0 shred -zn 0"
+echo "sudo rm -r *"
+echo ""
+echo "4."
+echo "Do not edit the reprod.sh file in an editor, while the program is processing."
+echo ""
+echo "5."
 echo "Regarding reproduction tests the files are reproduced in a similar manner, as if they were created by an application or a linux command. However, it just became public, that there exists a folder based obsolescence functionality in Apple IOS. If such folder based obsolescence functionality also existed on macOS, Linux or Windows, __running__ the reproduced (container) image might age your machine some further, just like any obsolescence would get transferred from the developer machine's onto your machine by the folder structure of the binary programm or archive. While the extra aging typically is small and thus usually can be ignored, the reproduced (container) image might contain a lot of aging, if the machine used for reproduction is already pretty rocked down and close to BIOS/UEFI dying. Thus, before starting a (gigabyte) large reproduction test using reprod.sh the author recommends to install an on-premise linux machine fresh with a Linux distribution other than from the Ubuntu family." 
 echo ""
-echo "Further, a fine reproduction image might suck (some minor) obsolescense again, when it in a docker style 'FROM ... ADD' pipeline gets further processed by an Ubuntu family distribution directly or by an automated cloud CI/CD build environment (e.g. at Docker Inc/ Github), that is based on Ubuntu. Other Debian family distributions seem to be fine. The recommendation reflects the author's experience. The research on file system based obsolescence functionalities is still work in progress and currently cannot be fully explained."
+echo "6."
+echo "A fine reproduced image might suck (some minor) obsolescense again, when it in a docker style 'FROM ... ADD' pipeline gets further processed by an Ubuntu family distribution directly or by an automated cloud CI/CD build environment (e.g. at Docker Inc/ Github), that is based on Ubuntu. Other Debian family distributions seem to be fine. The recommendation reflects the author's experience. The research on file system based obsolescence functionalities is still work in progress and currently cannot be fully explained."
 echo ""
 echo ""
 echo ""
@@ -150,12 +173,14 @@ echo "6. git push origin <name_of_your_fork_branch>"
 echo ""
 echo "However, before you can do that, you need to register on github.com, once."
 echo ""
-echo "If you are not familiar with the magic collab development tool 'git' already, search for the free ProGit_2020.pdf book (or a newer version) on duckduckgo.com. This is __the git book__ from two of the main git developers, Scott Chacon and Ben Straub. They explain everything perfect. (Except, why the tool is called git.) The git online help is also good."
+echo "If you are not familiar with the magic collab development tool 'git' already, search for the free ProGit_2020.pdf book (or a newer version) on duckduckgo.com. The book explains everything perfect."
+echo ""
+echo "Alternatively, it should also be possible to create a fork using the guthub web interface. In case request duckduckgo.com, how to perform that."
 echo ""
 echo ""
-echo "Your improved version has to meet four little requirements to get accepted:"
+echo "Your improved version has to meet four little requirements to get accepted to be incorporated into the main line version:"
 echo ""
-echo "1. You have to provide a working version, not a wonderful if-would-be vision."
+echo "1. You have to provide a working version, that can be tried out."
 echo "2. The update version can still be distributed as a single file."
 echo "3. The update version does not contain a GUI element." 
 echo "4. An update version usually contains the features of the current version."
@@ -164,6 +189,9 @@ echo "Other than these few requirements will - from the author's point of view -
 echo ""
 echo ""
 echo "Your accepted fork currently gets merged into the main branch once a month, when I take my research days."
+echo ""
+echo ""
+echo "Additionally, the author also provides his personal '# Further development options' at the end of the script file "
 echo ""
 echo ""
 echo "__Enter 'bash reprod.sh --contribution | less' to get a scrollable view.__"
@@ -288,7 +316,7 @@ echo "Version: $version"
 
 # Default values:
 mode='reprod'
-g_author='no'
+gmod='no'
 force="no"
 talist_gen='automatic'
 # sdir=""
@@ -341,25 +369,33 @@ do
     then
         mode="move"
     
-    elif [ "$1" = "-m=n" ] || [ "$1" = "-m=native" ] || [ "$1" = "--mode=n" ] || [ "$1" = "--mode=native" ] 
+    elif [ "$1" = "-m=b32" ] || [ "$1" = "--mode=b32" ] 
     then
-        mode="native" 
-
-    elif [ "$1" = "-m=dd4k" ] || [ "$1" = "--mode=dd4k" ] 
+        mode="b32"
+  
+    elif [ "$1" = "-m=b4k" ] || [ "$1" = "--mode=b4k" ] 
     then
-        mode="dd4k"       
-    
-    elif [ "$1" = "-m=dd64" ] || [ "$1" = "--mode=dd64" ] 
+        mode="b4k"       
+       
+    elif [ "$1" = "-m=bv" ] || [ "$1" = "--mode=bv" ] 
     then
-        mode="dd64"
+        mode="bv"
+        shift
+        bsx="$1"
     
     elif [ "$1" = "-f" ] || [ "$1" = "--force" ] 
     then
         force="yes"
     
-    elif [ "$1" = "-g" ] || [ "$1" = "--g-author" ] 
+    elif [ "$1" = "-g" ] || [ "$1" = "--gmod" ] 
     then
-        g_author="yes"
+        gmod="default"
+    
+    elif [ "$1" = "-gv" ]
+    then
+        gmod="gv"
+        shift
+        gdx="$1"
         
     elif [ "$1" = "-t=m" ] || [ "$1" = "-t=manual" ] || [ "$1" = "-talist=m" ] || [ "$1" = "--talist=manual" ]
     then
@@ -370,7 +406,7 @@ do
         sdir="$1"
         shift
         tdir="$1"
-    
+        
     else
         echo "ARGUMENT ERROR"
         echo "Consult 'bash reprod.sh --help' and validate the syntax." 
@@ -381,7 +417,7 @@ shift
 done
 
 
-if [ "$g_author" = "yes" ]
+if [ "$gmod" = "default" ] || [ "$gmod" = "gv" ] 
 then
     if test -f /bin/gm
     then 
@@ -428,7 +464,7 @@ then
     if [ "$mode" = "reprod" ]
     then
         function reprodf() {
-            dd if="$1" of="$2" bs=8 status=progress iflag=nofollow
+            dd if="$1" of="$2" bs=24 status=progress iflag=nofollow
          }
     elif [ "$mode" = "copy" ]
     then
@@ -440,20 +476,22 @@ then
         function reprodf() {
             mv -f "$1" "$2" 
         }
-    elif [ "$mode" = "native" ]
+    elif [ "$mode" = "b32" ]
     then
         function reprodf() {
-            dd if="$1" of="$2" status=progress iflag=nofollow
-        }
-    elif [ "$mode" = "dd4k" ]
+            dd if="$1" of="$2" bs=32 status=progress iflag=nofollow 
+         }
+         
+    elif [ "$mode" = "b4k" ]
     then
         function reprodf() {
             dd if="$1" of="$2" bs=4096 status=progress iflag=nofollow 
         }
-    elif [ "$mode" = "dd64" ]
+
+    elif [ "$mode" = "bv" ]
     then
         function reprodf() {
-            dd if="$1" of="$2" bs=64 status=progress iflag=nofollow 
+            dd if="$1" of="$2" bs="$bsx" status=progress iflag=nofollow 
          }
     else
         function reprodf() {
@@ -467,7 +505,7 @@ else
     if [ "$mode" = "reprod" ]
     then
         function reprodf() {
-            dd if="$1" of="$2" bs=8 status=progress iflag=nofollow conv=excl 
+            dd if="$1" of="$2" bs=24 status=progress iflag=nofollow conv=excl 
          }
     elif [ "$mode" = "copy" ]
     then
@@ -479,20 +517,20 @@ else
         function reprodf() {
             mv "$1" "$2" 
         }
-    elif [ "$mode" = "native" ]
+    elif [ "$mode" = "b32" ]
     then
         function reprodf() {
-            dd if="$1" of="$2" status=progress iflag=nofollow conv=excl 
-        }
-    elif [ "$mode" = "dd4k" ]
+            dd if="$1" of="$2" bs=32 status=progress iflag=nofollow conv=excl 
+         }
+    elif [ "$mode" = "b4k" ]
     then
         function reprodf() {
             dd if="$1" of="$2" bs=4096 status=progress iflag=nofollow conv=excl 
         }
-    elif [ "$mode" = "dd64" ]
+    elif [ "$mode" = "bv" ]
     then
         function reprodf() {
-            dd if="$1" of="$2" bs=64 status=progress iflag=nofollow conv=excl 
+            dd if="$1" of="$2" bs="$bsx" status=progress iflag=nofollow conv=excl 
          }
     else 
         function reprodf() {
@@ -503,10 +541,11 @@ fi
 
 
 
-if [ "$g_author" = "yes" ]
+# Graphic modification. Mimicks a graphic authoring of png, jpg, jpeg, gif, xpm and bmp images.
+
+
+if [ "$gmod" = "default" ]
 then 
-    
-    # Graphic authoring mode. Mimicks a graphic authoring of png, jpg, jpeg, gif, xpm and bmp images.
     
     if [ "$gtool" = "gm" ] && [ "$force" = "yes" ] && [ "$mode" != "move" ]
     then
@@ -526,29 +565,7 @@ then
             fi
         }
     
-    elif [ "$gtool" = "gm" ] && [ "$force" = "yes" ] && [ "$mode" = "move" ]
-    then
-        function reprodg() {
-            if gm convert "$1" -depth 6 "$2"
-            then rm "$1"
-            fi
-        }
-    
-    elif [ "$gtool" = "gm" ] && [ "$force" = "no" ] && [ "$mode" = "move" ]
-    then
-        function reprodg() {
-            if ! ( test -f "$2" )
-            then
-                if gm convert "$1" -depth 6 "$2"
-                then
-                    rm "$1"
-                    return $TRUE
-                fi
-            else
-                return $FALSE
-            fi
-        }
-    
+    # imagemagick
     elif [ "$gtool" = "im" ] && [ "$force" = "yes" ] && [ "$mode" != "move" ]
     then
         function reprodg() {
@@ -567,22 +584,47 @@ then
             fi    
         }
     
-    elif [ "$gtool" = "im" ] && [ "$force" = "yes" ] && [ "$mode" = "move" ]
+    else
+        echo "gmod ERROR: The requested graphic authoring mode cannot be compiled."
+        echo "Mode move cannot be combined with graphic authoring."
+        echo "(Imagemagick is out-of-the-box deactivated.)"
+        exit 1
+    fi
+
+elif [ "$gmod" = "gv" ]
+then 
+
+    if [ "$gtool" = "gm" ] && [ "$force" = "yes" ] && [ "$mode" != "move" ]
     then
         function reprodg() {
-            if convert "$1" -depth 6 "$2"
-            then rm "$1"
-            fi
+            gm convert "$1" -depth "$gdx" "$2"
         }
     
-    elif [ "$gtool" = "im" ] && [ "$force" = "no" ] && [ "$mode" = "move" ]
+    elif [ "$gtool" = "gm" ] && [ "$force" = "no" ] && [ "$mode" != "move" ]
     then
         function reprodg() {
             if ! ( test -f "$2" )
             then
-                if convert "$1" -depth 6 "$2"
-                then rm "$1"
-                fi
+                gm convert "$1" -depth "$gdx" "$2"
+                return $TRUE
+            else
+                return $FALSE
+            fi
+        }
+    
+    # imagemagick
+    elif [ "$gtool" = "im" ] && [ "$force" = "yes" ] && [ "$mode" != "move" ]
+    then
+        function reprodg() {
+            convert "$1" -depth "$gdx" "$2"
+        }
+    
+    elif [ "$gtool" = "im" ] && [ "$force" = "no" ] && [ "$mode" != "move" ]
+    then
+        function reprodg() {
+            if ! ( test -f "$2" )
+            then
+                convert "$1" -depth "$gdx" "$2"
                 return $TRUE
             else
                 return $FALSE
@@ -590,15 +632,16 @@ then
         }
     
     else
-        echo "ERROR: The requested graphic authoring mode cannot be compiled."
+        echo "gv ERROR: The requested graphic authoring mode cannot be compiled."
+        echo "Mode move cannot be combined with graphic authoring."
         echo "(Imagemagick is out-of-the-box deactivated.)"
         exit 1
     fi
 
-    
+  
 else
     
-    # DEFAULT transfer mode.
+    # ELSE transfer mode.
     
     function reprodg() {
         reprodf "$1" "$2"
@@ -839,7 +882,7 @@ echo ""
 echo "Job Summary"
 echo ""
 echo "Specified Options"
-echo "mode: $mode  force: $force  g-author: $g_author  talist-generation: $talist_gen"
+echo "mode: $mode  force: $force  gmod: $gmod  talist-generation: $talist_gen"
 echo ""
 echo "Source Directory: $sdir       Target Directory: $tdir"
 echo ""
@@ -853,17 +896,18 @@ else
     echo "# File objects in source directory: $sdir_count"
     echo "# File objects in transaction list: $talst_count"
 fi
+
 echo ""
-echo "The transfer speeds on (the same) SSD might range by transfer mode as follows:"
-echo "--mode=reprod [ avg. I/O size 10 kB ]     ~     2.0 -     5.5 GB/h."
-echo "--mode=reprod [ avg. I/O size  1 MB ]     ~     3.0 -     8.0 GB/h."
-echo "--mode=copy   [ avg. I/O size 10 kB ]     ~     2.0   -   6.5 GB/h."
-echo "--mode=copy   [ avg. I/O size  1 MB ]     ~  1800   -  5400   GB/h."
-echo "--mode=native [ avg. I/O size 10 kB ]     ~     2.0   -   6.0 GB/h."
-echo "--mode=native [ avg. I/O size  1 MB ]     ~   450 -    1000   GB/h."
-echo ""
-echo "There will be a rough overall progress indicator provided, from which the total processing time in case can be extrapolated over the thumb."
-echo ""
+if [ "$mode" = "reprod" ]
+then
+    echo "The transfer speed in default reprod mode (on the same SSD) might range as follows:"
+    echo "--mode=reprod [ avg. I/O size 10 kB ]     ~   2  -   6 GB/h."
+    echo "--mode=reprod [ avg. I/O size  1 MB ]     ~  15  -  36 GB/h."
+    echo ""
+    echo "There will be a rough overall progress indicator provided, from which the total processing time in case can be extrapolated over the thumb."
+    echo ""
+fi
+
 read -p "Start the job, right now? (y/ n/ CNTRL-c)" inpt
 
 if ! [ "$inpt" = "y" ] || [ "$inpt" = "Y" ] 
@@ -936,7 +980,9 @@ then
         echo "Overall Progress: ~ $(($i *100 /$talst_count))%"
         i=$(($i +1))
         date --iso-8601='seconds'
-        find "$sdir/$taobj" -maxdepth 0 -printf " $taobj %s Byte \n" | xargs
+        
+        # Disabled filesize display 
+        # find "$sdir/$taobj" -maxdepth 0 -printf " $taobj %s Byte \n" | xargs
         
         # File owner
         owner='root:root'
@@ -1002,7 +1048,7 @@ then
 			    succcnt=$(($succcnt+1))
 	       	    echo "Ok"
             else
-			    echo "g_author failed"
+			    echo "gmod failed"
 			    g_failcount=$(($g_failcount+1))
 	            echo "$taobj" >>/tmp/g_fail.lst
 	            if
@@ -1048,7 +1094,7 @@ echo ""
 echo "Transfer Report"
 # echo ""
 # echo "Specified Options"
-# echo "mode: $mode  force: $force  g-author: $g_author  talist-generation: $talist_gen"
+# echo "mode: $mode  force: $force  gmod: $gmod  talist-generation: $talist_gen"
 echo ""
 echo "Starttime: $starttime    Endtime: $endtime"
 echo ""
@@ -1088,7 +1134,7 @@ then
 	echo ""
 	echo "Graphics Report"
 	echo ""
-	echo "In $g_failcount graphics the specified graphic authoring mimic has not been performed."
+	echo "In $g_failcount graphics the specified graphic modification has not been performed."
 	echo ""
 	echo "To view in detail enter 'sudo cat< /tmp/g_fail.lst'"
 	echo ""
@@ -1098,10 +1144,10 @@ fi
 
 ###############################################################################################################################################################
 #
-# Further development options:
+# Further development options :
 
-# - Flexible graphic type defintion
-# - A MB 'number format' for file sizes (kB sizes erratic; either kB or kiB)
-# - print_faq()
-# - Functionality to skip the current transfer (of a large file)
+# - Compiling the shell script to a binary, e.g. using simple script compiler. 
+# - Variable graphic type definition by a list.
+# - Functionality to skip the current transfer (of a large file).
+# - A MB 'number format' for file sizes (kB sizes erratic; either kB or kiB).
 
