@@ -3,7 +3,7 @@
 
 # reprod.sh 
 # By quantsareus.net
-version="0.50.01"
+version="0.51.01"
 
 
 print_usage() {
@@ -28,12 +28,13 @@ echo "  -m=cp, --mode=copy      cp mode. All file attributes of the target file 
 echo "  -m=mv, --mode=move      mv mode. A workoaround for the missing mv -r option, in order to move the FILES of a folder-"  
 echo "                          structure recursively. No effective file transfer, thus maximum fast."  
 echo "                          CAVE: The move functionality is only available on the same partition (and the same disk)!" 
-echo "                          Otherwise the called system function mv automatically performs 'cp and rm' of the source file!!!"
+echo "                          Otherwise the called system function mv automatically performs 'cp and rm' of the source file!"
 echo ""
-echo "  -m=b32,  --mode=b32     Fast reproduction with HARDWARE ACCELERATION in blocks of 32 bit. FOR CLI USE OF DATA, ONLY!" 
-echo "  -m=b4k,  --mode=b4k     Very fast reproduction with HARDWARE ACCELERATION in blocks of 4096 bit. FOR CLI USE OF DATA, ONLY!"
+echo "  -m=b32,  --mode=b32     Reproduction in 32 bit blocks. Some HARDWARE ACCELERATION if on chipset. FOR CLI USE OF DATA, ONLY!" 
+echo "  -m=b4k,  --mode=b4k     Fast reproduction with HARDWARE ACCELERATION in blocks of 4096 bit. FOR CLI USE OF DATA, ONLY!"
 echo ""
-echo "  -m=bv X, --mode=bv X    Variable size reproduction by UNKNOWN TECHNIQUE. E.g. to simulate aged folders. VERY EXPERIMENTAL." 
+echo "  -m=bv X, --mode=bv X    Variable size reproduction by MISCELANEOUS INTERNAL MECHANICS. E.g. to simulate aged folders."
+echo "                          VERY EXPERIMENTAL." 
 echo "----------------------------------------------------------------------------------------------------------------------------"
 echo "  -f , --force            Force. Overwrites existing file objects. Except for directories, which cannot get overwritten."
 echo "----------------------------------------------------------------------------------------------------------------------------"
@@ -58,7 +59,7 @@ echo "Requirements: Linux + bash/zsh or Unix + bash/zsh. Maybe also Windows + WS
 
 print_readme() {
 echo ""
-echo "Updates in Version 0.50:"
+echo "Updates in Versions 0.5x:"
 echo "" 
 echo "- Improved transfer speed by tripling the transfer block size from 8 to 24. (Higher than bs=24 does not seem to be possible on a shell programming basis, because the 32 bit hardware acceleration will drop in at bs >= 32.)"
 echo "- Disabled filesize display for performance reasons. (Mark # Disabled filesize display)"
@@ -314,6 +315,9 @@ echo "Version: $version"
 # Parsing arguments
 
 
+basedir=$PWD
+
+
 # Default values:
 mode='reprod'
 gmod='no'
@@ -438,7 +442,7 @@ fi
 
 ###############################################################################################################################################################
 #
-# Initializing the functions by operation modes
+# Defining the operation functions by operation modes
 
 
 function makedir() {
@@ -731,6 +735,27 @@ END
 #
 # Catching run time errors
 
+
+# Test tmp access
+if 
+	echo "" >/tmp/dummy.lst
+then
+	echo ""
+else
+	echo "ERROR: Cannot write to work directory: /tmp"
+    exit 1
+fi
+
+
+# Cleaning up previous runs
+if test -f "/tmp/dummy.lst"
+then
+	find -P /tmp -name "*.lst*" -print0 | xargs -0 shred -zn 0
+	find -P /tmp -name "*.lst*" -print0 | xargs -0 rm
+fi
+
+
+# Test root privileges
 if (! echo "" >/root/dummy.txt)
 then
         echo "ERROR: No root priviliges. Use 'sudo bash reprod.sh' instead of 'bash reprod.sh'"
@@ -744,23 +769,16 @@ else
 fi
 
 
-if 
-	echo "" >/tmp/dummy.lst
+# Test source dir
+if  ! cd "$sdir" 
 then
-	echo ""
-else
-	echo "ERROR: Cannot write to work directory: /tmp"
-    exit 1
+	echo "ERROR: Cannot access source directory:  $sdir"
+	exit 1
+else cd $basedir
 fi
 
 
-if test -f "/tmp/dummy.lst"
-then
-	find -P /tmp -name "*.lst*" -print0 | xargs -0 shred -zn 0
-	find -P /tmp -name "*.lst*" -print0 | xargs -0 rm
-fi
-
-
+# Test target dir
 if test -d "$tdir"
 then	
 	echo "The specified target directory"
@@ -826,13 +844,8 @@ echo ""
 echo "Preparing the specified job. One moment please ..."
 
 
-pwdold=$PWD
-if  ! cd "$sdir" 
-then
-	echo "ERROR: Cannot access source directory:  $sdir"
-	exit 1
-fi
 
+cd "$sdir" 
 
 if [ "$talist_gen" = "manual" ]
 then
@@ -871,8 +884,7 @@ else
 
 fi
 
-
-cd "$pwdold"
+cd "$basedir"
 
 
 
@@ -1150,4 +1162,3 @@ fi
 # - Variable graphic type definition by a list.
 # - Functionality to skip the current transfer (of a large file).
 # - A MB 'number format' for file sizes (kB sizes erratic; either kB or kiB).
-
