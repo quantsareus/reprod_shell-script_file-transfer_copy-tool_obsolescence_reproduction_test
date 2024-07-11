@@ -3,7 +3,7 @@
 
 # reprod.sh 
 # By quantsareus.net
-version="0.51.01"
+version="0.60.01"
 
 
 print_usage() {
@@ -14,36 +14,36 @@ echo ""
 echo " OPTIONS:"
 echo ""
 echo "----------------------------------------------------------------------------------------------------------------------------"
-echo "  -h , --help             Print this help page."
-echo "  -c , --contribution     Print the OSS-contributions informations."
-echo "  -e , --example          Print the example information."
-echo "  -l , --license          Print the license and OSS-contributions informations."
-echo "  -v , --version          Print version."
-echo "  -r , --readme           Print the readme information. __The 'Safe Use' section is a MUST-READ before starting!__"
+echo "  -h , --help             Show this help page."
+echo "  -c , --contribution     Information, how to contribute to the program."
+echo "  -e , --example          Examples."
+echo "  -l , --license          License information."
+echo "  -v , --version          Show version."
+echo "  -r , --readme           Readme information. __The 'Safe Use' section is a MUST-READ before starting!__"
 echo "----------------------------------------------------------------------------------------------------------------------------"
 echo "  -m=r, --mode=reprod     Default reproduction mode. Relatively safe and relatively slow. Transfers the files with some kind "  
 echo "                          of an authoring mimic. The target file attributes are generated new, as if the file was created/ " 
 echo "                          edited by an app. Except for access mode and and ownership."
 echo "  -m=cp, --mode=copy      cp mode. All file attributes of the target file are the ones of the source file. Fast." 
-echo "  -m=mv, --mode=move      mv mode. A workoaround for the missing mv -r option, in order to move the FILES of a folder-"  
-echo "                          structure recursively. No effective file transfer, thus maximum fast."  
-echo "                          CAVE: The move functionality is only available on the same partition (and the same disk)!" 
-echo "                          Otherwise the called system function mv automatically performs 'cp and rm' of the source file!"
 echo ""
-echo "  -m=b32,  --mode=b32     Reproduction in 32 bit blocks. Some HARDWARE ACCELERATION if on chipset. FOR CLI USE OF DATA, ONLY!" 
-echo "  -m=b4k,  --mode=b4k     Fast reproduction with HARDWARE ACCELERATION in blocks of 4096 bit. FOR CLI USE OF DATA, ONLY!"
+echo "  -m=b32,  --mode=b32     Reproduction in 32 bit blocks. Some HARDWARE ACCELERATION if on chipset. FOR CLI USE OF GENERATED DATA." 
+echo ""
+echo "  -m=b8k,  --mode=b8k     Fast reproduction with HARDWARE ACCELERATION in 'blocks of 4k in dual word mode'. EXPERIMENTAL."
 echo ""
 echo "  -m=bv X, --mode=bv X    Variable size reproduction by MISCELANEOUS INTERNAL MECHANICS. E.g. to simulate aged folders."
-echo "                          VERY EXPERIMENTAL." 
+echo "                          PROVIDED FOR RESEARCH." 
+echo "  -m=mv, --mode=move      Move mode. The mode is offered for completeness, only. Anyway, the internally called mv command "  
+echo "                          only performs a true move within the same filesystem (/ partition)! PROVIDED FOR RESEARCH." 
+echo ""
 echo "----------------------------------------------------------------------------------------------------------------------------"
 echo "  -f , --force            Force. Overwrites existing file objects. Except for directories, which cannot get overwritten."
 echo "----------------------------------------------------------------------------------------------------------------------------"
 echo "  -g , --gmod             Default graphic modification. Mimicks a graphic authoring of png, webp, jpg, jpeg, gif, xpm and "
 echo "                          bmp images."
-echo "  -gv X                   Graphic modification as above with variable image depth. EXPERIMENTAL."
+echo "  -gv X                   Graphic modification as above with variable image depth. Provided FOR USER-EXPERIMENTS.."
 echo "----------------------------------------------------------------------------------------------------------------------------"
 echo "  -t=m                    Manual transaction list generation by the user. The manual transaction list has to be provided"
-echo "  --talist=manual         by variation of"
+echo "  --talist=manual         by a variation of"
 echo "                          'find -P * > /tmp/ta.man' "
 echo "                          __executed in the source folder__."
 echo "                          The absolutely free selection of file objects will be completed for parent directories automa-" 
@@ -54,10 +54,19 @@ echo "Remark:"
 echo "The options CANNOT be concatenated. E.g. enter '-f -g' NOT '-fg'."
 echo ""
 echo "Requirements: Linux + bash/zsh or Unix + bash/zsh. Maybe also Windows + WSL and macOS + shell are possible with some code adoptions."
+echo ""
+echo "  In order to get a scrollable view let ' | less' follow the command.  "
 }
 
 
 print_readme() {
+echo ""
+echo "Updates in Versions 0.6x:"
+echo "" 
+echo "- Increased nasty file and folder name stability. "
+echo "- Updated documentation."
+echo "- Removed depreciated b4k transfer mode. No good results with this one."
+echo ""
 echo ""
 echo "Updates in Versions 0.5x:"
 echo "" 
@@ -69,7 +78,7 @@ echo ""
 echo ""
 echo "Functionality and Features"
 echo "" 
-echo "- On a basic level reprod.sh provides a flexible and reliable file transfer functionality, that allows to transfers files, directories and links of a __directory structure__ of unlimited depth in one go. It is safe for nasty file and folder names containing blanks or quote characters. (However not safe for absolute nasty file and folder names containing new line or line comment characters.)"
+echo "- On a basic level reprod.sh provides a flexible and reliable file transfer functionality, that allows to transfers files, directories and links of a __directory structure__ of unlimited depth in one go. It is safe for nasty file and folder names containing blanks or quote characters. (However not safe for absolute nasty file and folder names containing a new line or the degree symbol.)"
 echo ""
 echo "- The work horse for the simple copy tool functionality is the transfer mode '-m=cp' respectively '--mode=copy'."
 echo ""
@@ -158,50 +167,13 @@ echo "A fine reproduced image might suck (some minor) obsolescense again, when i
 echo ""
 echo ""
 echo ""
-echo "__Enter 'bash reprod.sh --readme | less' to get a scrollable view.__"
-}
-
-print_contribution() {
-echo ""
-echo "You are very welcome to contribute to this tool! All you need to do to make your contribution on to the tool as a non development team member is the following:"
-echo ""
-echo "1. git clone https://github.com/quantsareus/reprod<...>.git"
-echo "2. cd reprod<...>"
-echo "3. Make your edits."
-echo "4. git add --all"
-echo "5. git commit -m '<description of your fabulous update>' "
-echo "6. git push origin <name_of_your_fork_branch>"
-echo ""
-echo "However, before you can do that, you need to register on github.com, once."
-echo ""
-echo "If you are not familiar with the magic collab development tool 'git' already, search for the free ProGit_2020.pdf book (or a newer version) on duckduckgo.com. The book explains everything perfect."
-echo ""
-echo "Alternatively, it should also be possible to create a fork using the guthub web interface. In case request duckduckgo.com, how to perform that."
-echo ""
-echo ""
-echo "Your improved version has to meet four little requirements to get accepted to be incorporated into the main line version:"
-echo ""
-echo "1. You have to provide a working version, that can be tried out."
-echo "2. The update version can still be distributed as a single file."
-echo "3. The update version does not contain a GUI element." 
-echo "4. An update version usually contains the features of the current version."
-echo ""
-echo "Other than these few requirements will - from the author's point of view - unnecessarily complicate the tiny tool. The last requirement, however, might be discussed, when offerering a significant improvement of the tool, that's ready to use."
-echo ""
-echo ""
-echo "Your accepted fork currently gets merged into the main branch once a month, when I take my research days."
-echo ""
-echo ""
-echo "Additionally, the author also provides his personal '# Further development options' at the end of the script file "
-echo ""
-echo ""
-echo "__Enter 'bash reprod.sh --contribution | less' to get a scrollable view.__"
+echo "  In order to get a scrollable view let ' | less' follow the command.  "
 }
 
 print_example() {
 echo ""
-echo "Reproduction test example for a Drupal container image"
 echo ""
+echo "Example 1. Reproduction test example for a Drupal container image"
 echo ""
 echo "Usually container images are stateless and the configurations of the follow up developer get encapsulated in a new overlay layer. The effective filesystem of container image edited by multiple developers behaves like a layered piecework; bottom layers get effective where the layer(s) on top have holes (, to be specific do not provide the corresponding directory/ file/ link). However, there are also new stateful so called 2nd generation container images with an ordinary on-premise-installer (e.g. the docker images of Wordpress, Joomla and Drupal). When the follow-up developer has done an edit of one or more configuration files, then there might -- in the out-of-order and speculative bare metal processing of the CPU -- show up concurrent file attributes of the configuration file, when running the ordinary on-premise-installer. Which often crashes the installation process or causes other erratic behaviour later on, especially if there are many of such edited installer files. To avoid this, the follow-up developer can perform the configuration edits, respectively the preliminary reproduction test, that simulates a maximum configuration of any file in the image, as follows:" 
 echo ""
@@ -258,9 +230,48 @@ echo "- A3: Instead of using the standard 'FROM ... RUN ... ADD' pipeline altern
 echo ""
 echo ""
 echo ""
-echo "Reproduction test example for a linux image (off-label-use)"
+echo "Example 2. Using reprod.sh for a safe raw system image install on a sd card/ usb stick (as-is-install)"
+echo ""
+echo "On a brand new machine with Linux installed right from the beginning, writing a raw system image onto a flash medium using dd to is a low-brainer. However, the more the OS has aged already, the more frequently a low-brainer sd card does not work. Either the card does not boot all, or the system on the card is rapidly aging (even down to a maximum of 10 possible boots). "
+echo ""
+echo ""
+echo "Insert the sd card into the admin machine before booting the admin machine up."
+echo ""
+echo "Erase the card properly as follows, also including brand new cards with exfat file system."
+echo "sudo lsblk"
+echo "sudo dd if=/dev/urandom of=/dev/sdb status=progress     # up to 500 MB"
+echo "sudo dd if=/dev/zero of=/dev/sdb bs=8k status=progress      # until the medium is full"
+echo ""
+echo ""
+echo "Safe install."
+echo "mkdir -m 777 somefolder"
+echo "# Download Armbian_23.02.2_Rpi4b_jammy_current_5.15.92.img.xz (OR ALIKE) with your browser directly to somefolder."
+echo "cd .."
+echo "sudo chmod 777 *.xz"
+echo "xz -dk *.xz"
+echo "cd .."
+echo "sudo /bin/reprod.sh -m=b32 somefolder somefolder32"
+echo "sudo /bin/reprod.sh -m=r somefolder32 somefolder32r"
+echo "sudo /bin/reprod.sh -m=cp somefolder32r somefolder32rc"
+echo "cd somefolder32rc"
+echo "sudo dd if=Armbian_23.02.2_Rpi4b_jammy_current_5.15.92.img  of=/dev/sdb  bs8k  status=progress"
+echo ""
+echo "# Shutdown the admin machine."
+echo "# Remove the card and insert it into the unpowered Raspberry (OR ALIKE)."
+echo "# Boot the Raspberry (OR ALIKE)."
+echo "# Set the passwords, but leave out the local language configuration."
+echo "sudo armbian-config"
+echo "# Set language and keyboard layout."
+echo ""
+echo ""
+echo "# If it still does not work, it may be a bad community armbian image (happens sometimes) or your admin machine OS is already rocked down (try a fresh install) or you are simply running the wrong Linux on your admin machine. ;-) "
+echo ""
+echo ""
+echo ""
+echo "Example 3. Reproduction test of a linux image (off label use)"
 echo ""
 echo "The author could not run the following reproduction test example explicitly on the Raspberry 4b. To be frank, the author's Raspberry is out of order and the Raspberry 4b is out of stock since month. The impendance resistors of the wifi antennas were badly soldered. After a longer not-use period they have all fallen off and the Raspberry SOC from then on screen-printed everything diagonal from the left upper corner to right lower corner (without any modifications of the sd-card image). The author's other single board computers (BananaPi, RockPi) have all passed the presented reproduction test explicitly succesful."
+echo ""
 echo ""
 echo "sudo mkdir -m 777 /media/orig"
 echo "sudo losetup -fP --direct-io Armbian_23.02.2_Rpi4b_jammy_current_5.15.92.img"
@@ -268,11 +279,7 @@ echo "sudo mount -t ext4 /dev/loop0p1 /media/orig"
 echo "sudo reprod.sh -g /media/orig imgfolder"
 echo ""
 echo "cp Armbian_23.02.2_Rpi4b_jammy_current_5.15.92.img reprod.img"
-echo "# sudo dd if=/dev/zero count=1000000 >> reprod.img"
 echo "sudo losetup -fP --direct-io reprod.img"
-echo "# sudo parted /dev/loop1 #resizepart 1"
-echo "# sudo e2fsck -f /dev/loop1p1"
-echo "# sudo resize2fs /dev/loop1p1"
 echo "sudo mkdir -m 777 /media/reprod"
 echo "sudo mount -t ext4 /dev/loop1p1 /media/reprod"
 echo "cd /media/reprod"
@@ -283,11 +290,47 @@ echo "sudo reprod.sh -m=cp imgfolder /media/reprod"
 echo ""
 echo "sudo umount /media/* && sudo losetup -D"
 echo ""
-echo "#-line = optional"
 echo ""
 echo ""
 echo ""
-echo "__Enter 'bash reprod.sh --example | less' to get a scrollable view.__"
+echo "  In order to get a scrollable view let ' | less' follow the command.  "
+}
+
+print_contribution() {
+echo ""
+echo "You are very welcome to contribute to this tool! All you need to do to make your contribution on to the tool as a non development team member is the following:"
+echo ""
+echo "1. git clone https://github.com/quantsareus/reprod<...>.git"
+echo "2. cd reprod<...>"
+echo "3. Make your edits."
+echo "4. git add --all"
+echo "5. git commit -m '<description of your fabulous update>' "
+echo "6. git push origin <name_of_your_fork_branch>"
+echo ""
+echo "However, before you can do step 6, you need to register on github.com, once."
+echo ""
+echo "If you are not familiar with the magic collab development tool 'git' already, search for the free ProGit_2020.pdf book (or a newer version) on duckduckgo.com. The book explains  almost everything perfectly."
+echo ""
+echo "Alternatively, it should also be possible to create a fork using the guthub web interface. In case request duckduckgo.com, how to perform that."
+echo ""
+echo ""
+echo "Your improved version has to meet four little requirements to get accepted to be incorporated into the main line version:"
+echo ""
+echo "1. You have to provide a working version, that can be tried out."
+echo "2. The update version can still be distributed as a single file."
+echo "3. The update version does not contain a GUI element." 
+echo "4. An update version usually contains the features of the current version."
+echo ""
+echo "Other than these few requirements will - from the author's point of view - unnecessarily complicate the tiny tool. The last requirement, however, might be discussed, when offerering a significant improvement of the tool, that's ready to use."
+echo ""
+echo ""
+echo "Your accepted fork currently gets merged into the main branch once a month, when I take my research days."
+echo ""
+echo ""
+echo "Additionally, the author also provides his personal '# Further development options' at the end of the script file "
+echo ""
+echo ""
+echo "  In order to get a scrollable view let ' | less' follow the command.  "
 }
 
 print_license() {
@@ -377,9 +420,9 @@ do
     then
         mode="b32"
   
-    elif [ "$1" = "-m=b4k" ] || [ "$1" = "--mode=b4k" ] 
+    elif [ "$1" = "-m=b8k" ] || [ "$1" = "--mode=b8k" ] 
     then
-        mode="b4k"       
+        mode="b8k"       
        
     elif [ "$1" = "-m=bv" ] || [ "$1" = "--mode=bv" ] 
     then
@@ -486,10 +529,10 @@ then
             dd if="$1" of="$2" bs=32 status=progress iflag=nofollow 
          }
          
-    elif [ "$mode" = "b4k" ]
+    elif [ "$mode" = "b8k" ]
     then
         function reprodf() {
-            dd if="$1" of="$2" bs=4096 status=progress iflag=nofollow 
+            dd if="$1" of="$2" bs=8k status=progress iflag=nofollow 
         }
 
     elif [ "$mode" = "bv" ]
@@ -526,10 +569,10 @@ else
         function reprodf() {
             dd if="$1" of="$2" bs=32 status=progress iflag=nofollow conv=excl 
          }
-    elif [ "$mode" = "b4k" ]
+    elif [ "$mode" = "b8k" ]
     then
         function reprodf() {
-            dd if="$1" of="$2" bs=4096 status=progress iflag=nofollow conv=excl 
+            dd if="$1" of="$2" bs=8k status=progress iflag=nofollow conv=excl 
         }
     elif [ "$mode" = "bv" ]
     then
@@ -858,7 +901,7 @@ then
     while read ta
     do 
         taman_count=$(($taman_count +1))
-        if find -P "$ta" -maxdepth 0 -printf '%B@##%y#%p\n' >> /tmp/ta.lst.work
+        if find -P "$ta" -maxdepth 0 -printf '%B@°°%y°%p\n' >> /tmp/ta.lst.work
         then
             talst_count=$(($talst_count +1))
         else
@@ -867,10 +910,10 @@ then
             
     done < "$file"
     
-    sort /tmp/ta.lst.work | sed 's/.*##//' > /tmp/ta.lst
+    sort /tmp/ta.lst.work | sed 's/.*°°//' > /tmp/ta.lst
 
 else
-    find -P * -printf '%B@##%y#%p\n' | sort | sed 's/.*##//' > /tmp/ta.lst
+    find -P * -printf '%B@°°%y°%p\n' | sort | sed 's/.*°°//' > /tmp/ta.lst
 
     talst_count=$(cut -d - -f 1 <<< $(wc -l - < /tmp/ta.lst))     
         
@@ -916,7 +959,7 @@ then
     echo "--mode=reprod [ avg. I/O size 10 kB ]     ~   2  -   6 GB/h."
     echo "--mode=reprod [ avg. I/O size  1 MB ]     ~  15  -  36 GB/h."
     echo ""
-    echo "There will be a rough overall progress indicator provided, from which the total processing time in case can be extrapolated over the thumb."
+    echo "When on processing, the rough overall progress is shown."
     echo ""
 fi
 
@@ -955,8 +998,8 @@ then
     file=/tmp/ta.lst
     while read ta
     do
-        taobjtype="$(sed 's/#.*//' <<<"$ta")" 
-        taobj="$(sed 's/.*#//' <<<"$ta")" 
+        taobjtype="$(sed 's/°.*//' <<<"$ta")" 
+        taobj="$(sed 's/.*°//' <<<"$ta")" 
 	    taobjname="$(find "$sdir/$taobj" -maxdepth 0 -printf '%f')"
 	    taobjsuffix="$(sed 's/.*\.//' <<< "$taobjname")"
 
@@ -1162,3 +1205,4 @@ fi
 # - Variable graphic type definition by a list.
 # - Functionality to skip the current transfer (of a large file).
 # - A MB 'number format' for file sizes (kB sizes erratic; either kB or kiB).
+

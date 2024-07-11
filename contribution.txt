@@ -8,9 +8,9 @@ You are very welcome to contribute to this tool! All you need to do to make your
 5. git commit -m '<description of your fabulous update>' 
 6. git push origin <name_of_your_fork_branch>
 
-However, before you can do that, you need to register on github.com, once.
+However, before you can do step 6, you need to register on github.com, once.
 
-If you are not familiar with the magic collab development tool 'git' already, search for the free ProGit_2020.pdf book (or a newer version) on duckduckgo.com. The book explains everything perfect.
+If you are not familiar with the magic collab development tool 'git' already, search for the free ProGit_2020.pdf book (or a newer version) on duckduckgo.com. The book explains  almost everything perfectly.
 
 Alternatively, it should also be possible to create a fork using the guthub web interface. In case request duckduckgo.com, how to perform that.
 
@@ -31,4 +31,4 @@ Your accepted fork currently gets merged into the main branch once a month, when
 Additionally, the author also provides his personal '# Further development options' at the end of the script file 
 
 
-__Enter 'bash reprod.sh --contribution | less' to get a scrollable view.__
+  In order to get a scrollable view let ' | less' follow the command.  

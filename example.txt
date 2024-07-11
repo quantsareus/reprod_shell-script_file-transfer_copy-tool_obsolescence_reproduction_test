@@ -1,6 +1,6 @@
 
-Reproduction test example for a Drupal container image
 
+Example 1. Reproduction test example for a Drupal container image
 
 Usually container images are stateless and the configurations of the follow up developer get encapsulated in a new overlay layer. The effective filesystem of container image edited by multiple developers behaves like a layered piecework; bottom layers get effective where the layer(s) on top have holes (, to be specific do not provide the corresponding directory/ file/ link). However, there are also new stateful so called 2nd generation container images with an ordinary on-premise-installer (e.g. the docker images of Wordpress, Joomla and Drupal). When the follow-up developer has done an edit of one or more configuration files, then there might -- in the out-of-order and speculative bare metal processing of the CPU -- show up concurrent file attributes of the configuration file, when running the ordinary on-premise-installer. Which often crashes the installation process or causes other erratic behaviour later on, especially if there are many of such edited installer files. To avoid this, the follow-up developer can perform the configuration edits, respectively the preliminary reproduction test, that simulates a maximum configuration of any file in the image, as follows:
 
@@ -57,9 +57,48 @@ Summary of alternatives for the configuration problem at an installer image:
 
 
 
-Reproduction test example for a linux image (off-label-use)
+Example 2. Using reprod.sh for a safe raw system image install on a sd card/ usb stick (as-is-install)
+
+On a brand new machine with Linux installed right from the beginning, writing a raw system image onto a flash medium using dd to is a low-brainer. However, the more the OS has aged already, the more frequently a low-brainer sd card does not work. Either the card does not boot all, or the system on the card is rapidly aging (even down to a maximum of 10 possible boots). 
+
+
+Insert the sd card into the admin machine before booting the admin machine up.
+
+Erase the card properly as follows, also including brand new cards with exfat file system.
+sudo lsblk
+sudo dd if=/dev/urandom of=/dev/sdb status=progress     # up to 500 MB
+sudo dd if=/dev/zero of=/dev/sdb bs=8k status=progress      # until the medium is full
+
+
+Safe install.
+mkdir -m 777 somefolder
+# Download Armbian_23.02.2_Rpi4b_jammy_current_5.15.92.img.xz (OR ALIKE) with your browser directly to somefolder.
+cd ..
+sudo chmod 777 *.xz
+xz -dk *.xz
+cd ..
+sudo /bin/reprod.sh -m=b32 somefolder somefolder32
+sudo /bin/reprod.sh -m=r somefolder32 somefolder32r
+sudo /bin/reprod.sh -m=cp somefolder32r somefolder32rc
+cd somefolder32rc
+sudo dd if=Armbian_23.02.2_Rpi4b_jammy_current_5.15.92.img  of=/dev/sdb  bs8k  status=progress
+
+# Shutdown the admin machine.
+# Remove the card and insert it into the unpowered Raspberry (OR ALIKE).
+# Boot the Raspberry (OR ALIKE).
+# Set the passwords, but leave out the local language configuration.
+sudo armbian-config
+# Set language and keyboard layout.
+
+
+# If it still does not work, it may be a bad community armbian image (happens sometimes) or your admin machine OS is already rocked down (try a fresh install) or you are simply running the wrong Linux on your admin machine. ;-) 
+
+
+
+Example 3. Reproduction test of a linux image (off label use)
 
 The author could not run the following reproduction test example explicitly on the Raspberry 4b. To be frank, the author's Raspberry is out of order and the Raspberry 4b is out of stock since month. The impendance resistors of the wifi antennas were badly soldered. After a longer not-use period they have all fallen off and the Raspberry SOC from then on screen-printed everything diagonal from the left upper corner to right lower corner (without any modifications of the sd-card image). The author's other single board computers (BananaPi, RockPi) have all passed the presented reproduction test explicitly succesful.
+
 
 sudo mkdir -m 777 /media/orig
 sudo losetup -fP --direct-io Armbian_23.02.2_Rpi4b_jammy_current_5.15.92.img
@@ -67,11 +106,7 @@ sudo mount -t ext4 /dev/loop0p1 /media/orig
 sudo reprod.sh -g /media/orig imgfolder
 
 cp Armbian_23.02.2_Rpi4b_jammy_current_5.15.92.img reprod.img
-# sudo dd if=/dev/zero count=1000000 >> reprod.img
 sudo losetup -fP --direct-io reprod.img
-# sudo parted /dev/loop1 #resizepart 1
-# sudo e2fsck -f /dev/loop1p1
-# sudo resize2fs /dev/loop1p1
 sudo mkdir -m 777 /media/reprod
 sudo mount -t ext4 /dev/loop1p1 /media/reprod
 cd /media/reprod
@@ -82,8 +117,7 @@ sudo reprod.sh -m=cp imgfolder /media/reprod
 
 sudo umount /media/* && sudo losetup -D
 
-#-line = optional
 
 
 
-__Enter 'bash reprod.sh --example | less' to get a scrollable view.__
+  In order to get a scrollable view let ' | less' follow the command.  

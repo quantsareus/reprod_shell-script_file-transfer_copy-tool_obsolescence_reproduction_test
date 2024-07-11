@@ -1,5 +1,12 @@
 
-Updates in Version 0.50:
+Updates in Versions 0.6x:
+
+- Increased nasty file and folder name stability. 
+- Updated documentation.
+- Removed depreciated b4k transfer mode. No good results with this one.
+
+
+Updates in Versions 0.5x:
 
 - Improved transfer speed by tripling the transfer block size from 8 to 24. (Higher than bs=24 does not seem to be possible on a shell programming basis, because the 32 bit hardware acceleration will drop in at bs >= 32.)
 - Disabled filesize display for performance reasons. (Mark # Disabled filesize display)
@@ -9,7 +16,7 @@ Updates in Version 0.50:
 
 Functionality and Features
 
-- On a basic level reprod.sh provides a flexible and reliable file transfer functionality, that allows to transfers files, directories and links of a __directory structure__ of unlimited depth in one go. It is safe for nasty file and folder names containing blanks or quote characters. (However not safe for absolute nasty file and folder names containing new line or line comment characters.)
+- On a basic level reprod.sh provides a flexible and reliable file transfer functionality, that allows to transfers files, directories and links of a __directory structure__ of unlimited depth in one go. It is safe for nasty file and folder names containing blanks or quote characters. (However not safe for absolute nasty file and folder names containing a new line or the degree symbol.)
 
 - The work horse for the simple copy tool functionality is the transfer mode '-m=cp' respectively '--mode=copy'.
 
@@ -98,4 +105,4 @@ A fine reproduced image might suck (some minor) obsolescense again, when it in a
 
 
 
-__Enter 'bash reprod.sh --readme | less' to get a scrollable view.__
+  In order to get a scrollable view let ' | less' follow the command.  
