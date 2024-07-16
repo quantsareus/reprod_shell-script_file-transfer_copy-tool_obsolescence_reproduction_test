@@ -64,16 +64,16 @@ On a brand new machine with Linux installed right from the beginning, writing a 
 
 Insert the sd card into the admin machine before booting the admin machine up.
 
-Erase the card properly as follows, also including brand new cards with exfat file system.
+Erase the card properly as follows, also including brand new cards with factory exfat file system.
 sudo lsblk
-sudo dd if=/dev/urandom of=/dev/sdb status=progress     # up to 500 MB
-sudo dd if=/dev/zero of=/dev/sdb bs=8k status=progress      # until the medium is full
+sudo dd if=/dev/urandom of=/dev/sdb status=progress  # up to ~ 250 MB
+sudo dd if=/dev/zero of=/dev/sdb bs=X status=progress  # with X = even divider of 16384 (16K) other than 512;  until the medium is full
 
 
-Safe install.
+Install
 mkdir -m 777 somefolder
 # Download Armbian_23.02.2_Rpi4b_jammy_current_5.15.92.img.xz (OR ALIKE) with your browser directly to somefolder.
-cd ..
+cd somefolder
 sudo chmod 777 *.xz
 xz -dk *.xz
 cd ..
@@ -81,17 +81,27 @@ sudo /bin/reprod.sh -m=b32 somefolder somefolder32
 sudo /bin/reprod.sh -m=r somefolder32 somefolder32r
 sudo /bin/reprod.sh -m=cp somefolder32r somefolder32rc
 cd somefolder32rc
-sudo dd if=Armbian_23.02.2_Rpi4b_jammy_current_5.15.92.img  of=/dev/sdb  bs8k  status=progress
 
-# Shutdown the admin machine.
-# Remove the card and insert it into the unpowered Raspberry (OR ALIKE).
-# Boot the Raspberry (OR ALIKE).
-# Set the passwords, but leave out the local language configuration.
+# Version A. Runs once, runs long.
+sudo dd if=Armbian_23.02.2_Rpi4b_jammy_current_5.15.92.img of=/dev/sdb bs=X status=progress  #  with X = even divider of 16384 (16K) other than 512
+
+# Version B. Runs more probable, but maybe not very long.
+sudo dd if=Armbian_23.02.2_Rpi4b_jammy_current_5.15.92.img of=/dev/sdb bs=X status=progress #  with X = some high muliple of 16384 (16K)
+
+Shutdown the admin machine.
+Remove the card and insert it into the unpowered Raspberry (OR ALIKE).
+Boot the Raspberry (OR ALIKE).
+Set the passwords, but leave out the local language configuration.
 sudo armbian-config
-# Set language and keyboard layout.
+Set language and keyboard layout.
 
 
-# If it still does not work, it may be a bad community armbian image (happens sometimes) or your admin machine OS is already rocked down (try a fresh install) or you are simply running the wrong Linux on your admin machine. ;-) 
+Troubleshooting
+- Try another ARM OS distribution in an archive format other than xz or bz2.
+- Some SBC SOCs are this sensitive, that they can only get properly installed in a Windows like manner using an over-sophisticated media installer like Balena Etcher. Even if you get them installed this way, you won't have much fun with them. Whenever they are not properly shut down (including an unintended temporary power wire disconnection), the filesystem on the SD card dies a little bit. Finally also the SD card itself dies. A Raspberry is cheap. But a Raspberry plus 3 smashed 64GB A2 SD cards is not, anymore. When you get aware of such shitty SBC quality after the purchase, better make use of your 2 weeks/ 4 weeks return policy.
+- The USB controller of your admin machine got stuck. Unlock it.
+- Your admin machine OS is already rocked down, too much. Try a fresh install/ other machine.
+- Try to install from another Linux.
 
 
 

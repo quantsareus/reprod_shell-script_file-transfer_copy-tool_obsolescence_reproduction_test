@@ -10,7 +10,7 @@ You are very welcome to contribute to this tool! All you need to do to make your
 
 However, before you can do step 6, you need to register on github.com, once.
 
-If you are not familiar with the magic collab development tool 'git' already, search for the free ProGit_2020.pdf book (or a newer version) on duckduckgo.com. The book explains  almost everything perfectly.
+If you are not familiar with the collab development tool 'git' already, search for the free ProGit_2020.pdf book (or a newer version) on duckduckgo.com. The book explains  almost everything perfectly.
 
 Alternatively, it should also be possible to create a fork using the guthub web interface. In case request duckduckgo.com, how to perform that.
 

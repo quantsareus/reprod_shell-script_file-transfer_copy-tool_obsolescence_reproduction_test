@@ -4,6 +4,7 @@ Updates in Versions 0.6x:
 - Increased nasty file and folder name stability. 
 - Updated documentation.
 - Removed depreciated b4k transfer mode. No good results with this one.
+- Updated documentation.
 
 
 Updates in Versions 0.5x:
